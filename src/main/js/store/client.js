@@ -59,7 +59,12 @@ const actions = {
     // title and text children
     const noteModel = new dm5.Topic(noteType.newTopicModel(title)).fillChildren();
     noteModel.children['dmx.notes.text'].value = content;
-    noteModel.children['dmx.notebook.colorcode'].value = colorcode;
+    if(colorcode){
+        noteModel.children['dmx.notebook.colorcode'].value = colorcode;
+    }
+    else {
+        noteModel.children['dmx.notebook.colorcode'].value = '#FFFFAF';
+    };
     const res = dm5.restClient.createTopic(noteModel);
     dispatch('displayPopupAnimation', null);
 
