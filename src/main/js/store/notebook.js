@@ -1,36 +1,48 @@
 const state = {
   title: '',
   content: '',
+  selectedColorIndex: null,
+  colorCodes: ['#CD5C5C', '#32CD32', '#87CEFA', '#FFD700', '#9932CC'],
 };
 
 const actions = {
-
-  setTitle (_, title) {
-    //console.log('changing title...', title);
-    state.title = title;
-  },
  
-  setContent (_, content) {
-    //console.log('changing content...', content);
-    state.content = content;
-  }, 
-  
-  resetNote () {
-    state.title = '';
-    state.content = '';
-  },
-
   saveNote ({dispatch}) {
     console.log('Saving note...');
     if(!state.title){ //if there's no title set the current date as the title
-      dispatch('setTitle', getters.getDate());
+      state.title = getters.getDate();
     };
-    dispatch('createNote', {
-      value: state.title,
-      content: state.content
-    });
-    dispatch('resetNote');
+    const note = {
+        title: state.title,
+        content: state.content,
+        colorcode: state.colorCodes[state.selectedColorIndex]
+    };
+    dispatch('createNote', note);
   },
+
+  resetNote () {
+    state.title = '';
+    state.content = '';
+    state.selectedColorIndex = null;
+  },
+};
+
+const mutations = {
+
+  setTitle (state, payload) {
+    //console.log('changing title...', title);
+    state.title = payload;
+  },
+ 
+  setContent (state, payload) {
+    //console.log('changing content...', content);
+    state.content = payload;
+  }, 
+
+  setSelectedColorIndex (state, payload) {
+    state.selectedColorIndex = payload;
+  },
+
 };
 
 const getters = {
@@ -42,5 +54,6 @@ const getters = {
 export default {
   state,
   actions,
+  mutations,
   getters
 };

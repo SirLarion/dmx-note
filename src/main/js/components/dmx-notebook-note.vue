@@ -28,7 +28,7 @@
         >
           <div 
             :class="checkSelectedColor(index)"
-            :id="color"
+            :style="{backgroundColor: color}"
             @click.prevent="selectColor(index)"
           >
           </div>
@@ -47,42 +47,43 @@
 <script>
 
 export default {
-  data () {
-    return {
-      titleField: '',
-      contentField: '',
-      selectedColorIndex: null,
-      colorCodes: ['red', 'green', 'blue', 'yellow', 'purple'],
-    };
-  },
-
   computed: {
-    currentDate() {
+    currentDate () {
       return this.$store.getters.getDate;
     },
-  },
-
-  watch: {
-    titleField() {
-      this.$store.dispatch('setTitle', this.titleField);  
+    titleField: {
+      get() {
+        return this.$store.state.notebook.title;
+      },
+      set(value) {
+        this.$store.commit('setTitle', value);
+      }
     },
-    contentField() {
-      this.$store.dispatch('setContent', this.contentField);  
+    contentField: {
+      get() {
+        return this.$store.state.notebook.content;
+      },
+      set(value) {
+        this.$store.commit('setContent', value);
+      }
+    },
+    selectedColorIndex () {
+      return this.$store.state.notebook.selectedColorIndex;
+    },
+    colorCodes () {
+      return this.$store.state.notebook.colorCodes;
     },
   },
-
   methods: {
     saveNote() {
       this.$store.dispatch('saveNote');
-      this.titleField = ''; //TODO: This doesn't known whether saving the note succeeded
-      this.contentField = '';
     },
     selectColor(index) {
       if(this.selectedColorIndex === index) { // deselect color if already selected
-        this.selectedColorIndex = null;
+        this.$store.commit('setSelectedColorIndex', null);
       }
       else {
-        this.selectedColorIndex = index; 
+        this.$store.commit('setSelectedColorIndex', index);
       };
     },
     checkSelectedColor(index) {
@@ -200,15 +201,7 @@ export default {
   background-color: var(--bg-main); 
 }
 
-
 .colorcode:hover, .colorcode-selected:hover {
   cursor: pointer;
 }
-
-#red {background-color: indianred;}
-#green {background-color: limegreen;}
-#blue {background-color: lightskyblue;}
-#yellow {background-color: gold;}
-#purple {background-color: darkorchid;}
-
 </style>

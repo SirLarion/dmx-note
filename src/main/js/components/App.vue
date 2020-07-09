@@ -58,6 +58,8 @@
   --border-color: #dcdfe6;                    /* matches --border-color-base */
   --border-color-lighter: #ebeef5;            /* matches --border-color-lighter */
 
+  --legal-pad-yellow: #FFFFAF;
+
   --bg-main: ghostwhite;
   --bg-note: white;
   --bg-header: #2F2D40;

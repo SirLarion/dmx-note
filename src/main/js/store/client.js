@@ -14,7 +14,9 @@ const state = {
   writable: undefined,      // True if the current user has WRITE permission for the selected object.
 
   popupVisible: false,
-  noteStatus: 0,
+  noteStatus: 0, // -1: Failure
+                 //  0: Waiting
+                 //  1: Success
 
 };
 
@@ -50,13 +52,14 @@ const actions = {
     });
   },
 
-  createNote ({dispatch}, {value, content}) {
+  createNote ({dispatch}, {title, content, colorcode}) {
     // Note: for value integration to work at least all identity fields must be filled
     const noteType = dm5.typeCache.getTopicType('dmx.notes.note');
     // Create a new topic model with the note topic type and place the user input into it's 
     // title and text children
-    const noteModel = new dm5.Topic(noteType.newTopicModel(value)).fillChildren();
+    const noteModel = new dm5.Topic(noteType.newTopicModel(title)).fillChildren();
     noteModel.children['dmx.notes.text'].value = content;
+    noteModel.children['dmx.notebook.colorcode'].value = colorcode;
     const res = dm5.restClient.createTopic(noteModel);
     dispatch('displayPopupAnimation', null);
 
@@ -65,12 +68,13 @@ const actions = {
         res.then(note => {
           //TODO: Create association to colorcode after successfully creating note topic
           console.log('Created', note);
+          dispatch('resetNote'); 
           dispatch('displayPopupAnimation', true);
         }, fail => {
             console.log('Creating note failed');
             dispatch('displayPopupAnimation', false);
         });
-    }, 2000);
+    }, 1000);
   },
 
   loggedIn () {
