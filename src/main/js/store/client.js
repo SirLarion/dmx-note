@@ -10,6 +10,8 @@ const state = {
   object: undefined,        // The selected Topic/Assoc/TopicType/AssocType.
                             // This object is displayed in detail panel. Its ID appears in the browser URL.
                             // Undefined if there is no selection or a multi-selection.
+  activeWorkspace: undefined,
+  activeTopicmap: undefined,
 
   writable: undefined,      // True if the current user has WRITE permission for the selected object.
 
@@ -69,7 +71,7 @@ const actions = {
     dispatch('displayPopupAnimation', null);
 
     //Artificial delay for testing loading animation
-    setTimeout(() => {
+    setTimeout(() => {mapViewport: utils.debo
         res.then(note => {
           //TODO: Create association to colorcode after successfully creating note topic
           console.log('Created', note);
@@ -80,6 +82,23 @@ const actions = {
             dispatch('displayPopupAnimation', false);
         });
     }, 1000);
+  },
+
+  checkNotebookWorkspace (_, username) {
+    const title = 'Notebook';
+    dm5.restClient.getTopicsByType('dmx.workspaces.workspace').then(res => {
+        console.log(res);
+        const notebookSpace = res.find(space => space.value === title);
+        if(!notebookSpace){
+            dm5.restClient.createWorkspace(title, null, 'dmx.workspaces.private').then(space => {
+                console.log('Initialized Notebook workspace');
+                state.activeWorkspace = space;
+            });
+        }
+        else {
+            state.activeWorkspace = notebookSpace;
+        };
+    });
   },
 
   loggedIn () {
@@ -154,3 +173,5 @@ function _initWritable () {
     state.writable = writable
   })
 }
+
+
