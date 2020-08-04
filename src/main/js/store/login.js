@@ -8,34 +8,34 @@ const state = {
 const actions = {
 
   loggedIn (_, username) {
-    console.log('loggedIn', username)
-    state.username = username
+    console.log('loggedIn', username);
+    state.username = username;
   },
 
   logout ({dispatch}) {
-    console.log('logout', state.username)
+    console.log('logout', state.username);
     dm5.restClient.logout().then(() => {
-      state.username = ''
-      dispatch('loggedOut')
+      state.username = '';
+      dispatch('loggedOut');
     })
   },
 
   openLoginDialog () {
-    state.visible = true
+    state.visible = true;
   },
 
   closeLoginDialog () {
-    state.visible = false
+    state.visible = false;
   }
-}
+};
 
 export default {
   state,
   actions
-}
+};
 
 // init state
 
 dm5.restClient.getUsername().then(username => {
-  state.username = username
-})
+  state.username = username;
+});

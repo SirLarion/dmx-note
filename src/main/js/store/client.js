@@ -57,24 +57,31 @@ const actions = {
   createNote ({dispatch}, {title, content, colorcode}) {
     // Note: for value integration to work at least all identity fields must be filled
     const noteType = dm5.typeCache.getTopicType('dmx.notes.note');
-    // Create a new topic model with the note topic type and place the user input into it's 
-    // title and text children
+    // Create a new topic model with the note topic type and change the value of it's children
+    // to the user inputs
     const noteModel = new dm5.Topic(noteType.newTopicModel(title)).fillChildren();
     noteModel.children['dmx.notes.text'].value = content;
     if(colorcode){
         noteModel.children['dmx.notebook.colorcode'].value = colorcode;
     }
     else {
+        // Colorcode defaults to "Yellow legalpad"
         noteModel.children['dmx.notebook.colorcode'].value = '#FFFFAF';
     };
     const res = dm5.restClient.createTopic(noteModel);
     dispatch('displayPopupAnimation', null);
 
     //Artificial delay for testing loading animation
-    setTimeout(() => {mapViewport: utils.debo
+    setTimeout(() => {
         res.then(note => {
-          //TODO: Create association to colorcode after successfully creating note topic
           console.log('Created', note);
+          const viewProps = {
+              'dmx.topicmaps.x': Math.random()*400, 
+              'dmx.topicmaps.y': Math.random()*400, 
+              'dmx.topicmaps.pinned': false,
+              'dmx.topicmaps.visibility': true
+          };
+          dm5.restClient.addTopicToTopicmap(state.activeTopicmap.id, note.id, viewProps);
           dispatch('resetNote'); 
           dispatch('displayPopupAnimation', true);
         }, fail => {
@@ -84,21 +91,56 @@ const actions = {
     }, 1000);
   },
 
-  checkNotebookWorkspace (_, username) {
+  checkInitConditions ({dispatch}, username) {
     const title = 'Notebook';
-    dm5.restClient.getTopicsByType('dmx.workspaces.workspace').then(res => {
-        console.log(res);
-        const notebookSpace = res.find(space => space.value === title);
-        if(!notebookSpace){
-            dm5.restClient.createWorkspace(title, null, 'dmx.workspaces.private').then(space => {
-                console.log('Initialized Notebook workspace');
+    if(username){
+        dm5.restClient.getTopicsByType('dmx.workspaces.workspace').then(res => {
+            const notebookSpace = {name: title, workspace: res.find(space => space.value === title)};
+            dispatch('setActiveWorkspace', notebookSpace).then(workspace => { 
+                dm5.restClient.getAssignedTopics(workspace.id, 'dmx.topicmaps.topicmap', false, false).then(maps => {
+                    console.log(maps);
+                    const notebookMap = {name: title, topicmap: maps.find(map => map.value === title), wsID: workspace.id};
+                    const untitledMap = maps.find(map => map.value === 'untitled');
+                    dispatch('setActiveTopicmap', notebookMap);
+                    if(untitledMap){
+                        dm5.restClient.deleteTopic(untitledMap.id).then(res => {
+                            console.log('Removed untitled topicmap');
+                        }); 
+                    };
+                });
+            });
+            
+        });
+    };
+  },
+
+  setActiveWorkspace (_, {name, workspace}) {
+    return new Promise((resolve, reject) => {
+        if(!workspace){
+            dm5.restClient.createWorkspace(name, null, 'dmx.workspaces.private').then(space => {
+                console.log(`Initialized ${name} workspace`);
                 state.activeWorkspace = space;
+                resolve(space);
             });
         }
         else {
-            state.activeWorkspace = notebookSpace;
+            state.activeWorkspace = workspace;
+            resolve(workspace);
         };
     });
+  },
+
+  setActiveTopicmap (_, {name, topicmap, wsID}) {
+    if(!topicmap){
+        dm5.restClient.createTopicmap(name, 'dmx.topicmaps.topicmap', {}).then(map => {
+            console.log(`Initialized ${name} topicmap`);
+            state.activeTopicmap = map;
+            dm5.restClient.assignToWorkspace(map.id, wsID);
+        });
+    }
+    else {
+        state.activeTopicmap = topicmap;
+    };
   },
 
   loggedIn () {

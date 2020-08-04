@@ -38,16 +38,8 @@ export default {
   methods: {
     loggedIn (username) {
       this.$store.dispatch('loggedIn', username);
-      this.$store.dispatch('checkNotebookWorkspace', username);
+      this.$store.dispatch('checkInitConditions', username);
     },
-    //
-    // TODO: Workspace assignment
-    // if(username.workspaces['Notebook'])
-    //    then set as active workspace
-    // else
-    //    create workspace 'Notebook'
-    //    set as active workspace
-    //
     closeLogin () {
       this.$store.dispatch('closeLoginDialog');
     },
