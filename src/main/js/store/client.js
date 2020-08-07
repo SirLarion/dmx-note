@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { MessageBox } from 'element-ui';
-import dm5 from 'dm5';
+import dm5 from 'dmx-api';
 
 Vue.use(Vuex);
 
