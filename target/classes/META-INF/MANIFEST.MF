@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Artifact-Id: dmx-notebook
-Bnd-LastModified: 1596692707339
-Build-Jdk: 1.8.0_252
+Bnd-LastModified: 1603444328490
+Build-Jdk: 1.8.0_265
 Built-By: sirlarion
 Bundle-Activator: systems.dmx.notebook.NotebookPlugin
 Bundle-Description: Parent POM for all DMX plugins (= OSGi bundles). 3 f
